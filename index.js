@@ -11,7 +11,13 @@ function execute() {
         type: "list",
         message: "Execute a Command",
         name: "executecmd",
-        choices: ["Send a Message", "Set Status", "Fetch User", "Quit"],
+        choices: [
+          "Send a Message",
+          "Set Status",
+          "Fetch User",
+          "Bot Data",
+          "Quit",
+        ],
       },
     ])
     .then((answers) => {
@@ -26,6 +32,9 @@ function execute() {
       }
       if (answers.executecmd === "Fetch User") {
         playFetch();
+      }
+      if (answers.executecmd === "Bot Data") {
+        botData();
       }
     })
     .catch((error) => {
@@ -46,6 +55,141 @@ function start() {
   console.log("-----------------------------");
   execute();
 }
+function botData() {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "Bot Data",
+        name: "list",
+        choices: ["Guilds", "Users"],
+      },
+    ])
+    .then((answers) => {
+      if (answers.list === "Users") {
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              message: " ",
+              name: "userchoose",
+              choices: ["Info", "Count"],
+            },
+          ])
+          .then((answers) => {
+            if (answers.userchoose === "Count") {
+              dc.on("ready", () => {
+                if (dc.users.size === 1) {
+                  console.log(
+                    `\n${dc.users.size} user is using ${dc.user.username}.`
+                  );
+                }
+                if (dc.users.size > 1) {
+                  console.log(
+                    `\n${dc.users.size} users are using ${dc.user.username}.`
+                  );
+                }
+              });
+              dc.login(config.token);
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "Continue",
+                    name: "confirm",
+                    choices: ["Yes"],
+                  },
+                ])
+                .then((answers) => {
+                  start();
+                });
+            }
+            if (answers.userchoose === "Info") {
+              dc.on("ready", () => {
+                console.log("\n-----------------------------");
+                dc.users.forEach((guild) =>
+                  console.log(`${guild.tag}:${guild.id}`)
+                );
+              });
+              dc.login(config.token);
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "Continue",
+                    name: "confirm",
+                    choices: ["Yes"],
+                  },
+                ])
+                .then((answers) => {
+                  start();
+                });
+            }
+          });
+      }
+      if (answers.list === "Guilds") {
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              message: " ",
+              name: "guildchoose",
+              choices: ["Info", "Count"],
+            },
+          ])
+          .then((answers) => {
+            if (answers.guildchoose === "Count") {
+              dc.on("ready", () => {
+                if (dc.guilds.size === 1) {
+                  console.log(
+                    `\n${dc.guilds.size} guild is using ${dc.user.username}.`
+                  );
+                }
+                if (dc.guilds.size > 1) {
+                  console.log(
+                    `\n${dc.guilds.size} guilds are using ${dc.user.username}.`
+                  );
+                }
+              });
+              dc.login(config.token);
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "Continue",
+                    name: "confirm",
+                    choices: ["Yes"],
+                  },
+                ])
+                .then((answers) => {
+                  start();
+                });
+            }
+            if (answers.guildchoose === "Info") {
+              dc.on("ready", () => {
+                console.log("\n-----------------------------");
+                dc.guilds.forEach((guild) =>
+                  console.log(`${guild.name}:${guild.id}`)
+                );
+              });
+              dc.login(config.token);
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "Continue",
+                    name: "confirm",
+                    choices: ["Yes"],
+                  },
+                ])
+                .then((answers) => {
+                  start();
+                });
+            }
+          });
+      }
+    });
+}
 function playFetch() {
   inquirer
     .prompt([
@@ -58,7 +202,7 @@ function playFetch() {
     .then((answers) => {
       dc.on("ready", () => {
         dc.fetchUser(answers.u_id).then((value) => {
-          console.log("-----------------------------");
+          console.log("\n-----------------------------");
           console.log("Username: " + value.username);
           console.log("Discriminator: " + value.discriminator);
           console.log("ID: " + value.id);
@@ -67,7 +211,8 @@ function playFetch() {
             "Status: " +
               JSON.stringify(value.presence.status)
                 .replace('"', "")
-                .replace('"', "")
+                .replace('"', "") +
+              " (Based on what the bot sees)"
           );
           inquirer
             .prompt([
@@ -198,7 +343,7 @@ function sendMSG() {
                           dc.login(config.token);
                         });
                     });
-                })
+                });
             }
             if (choosal === "Embed") {
               inquirer
@@ -352,5 +497,5 @@ function sendMSG() {
               });
           }
         });
-    })
+    });
 }
